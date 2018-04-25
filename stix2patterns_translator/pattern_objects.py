@@ -43,6 +43,16 @@ class ObservationOperators(Enum):
     def __repr__(self):
         return self._name_
 
+class Qualifiers(Enum):
+    """ various types of qualifiers """
+    (
+        Repeat,
+        Within,
+        StartStop
+    ) = range(3)
+    
+    def __repr__(self):
+        return self._name_
 
 class STIX2Value:
     pass
@@ -109,6 +119,17 @@ class BaseObservationExpression:
     pass
 
 
+class Qualifier:
+    def __init__(self, type: str, value1: int, value2: int = None) -> None:
+        self.type = type
+        self.value1 = value1
+        self.value2 = value2
+        
+    def __repr__(self) -> str:
+        return "Qualifier({type} {value1} {value2})".format(
+            type=self.type, value1=self.value1, value2=self.value2)
+
+    
 class ObservationExpression(BaseObservationExpression):
     def __init__(self, comparison_expression: BaseComparisonExpression) -> None:
         if not isinstance(comparison_expression, BaseComparisonExpression):
@@ -121,18 +142,20 @@ class ObservationExpression(BaseObservationExpression):
 
 class CombinedObservationExpression(BaseObservationExpression):
     def __init__(self, expr1: BaseObservationExpression, expr2: BaseObservationExpression,
-                 operator: ObservationOperators) -> None:
+                 operator: ObservationOperators, qualifier: Qualifier = None) -> None:
         if not all((isinstance(expr1, BaseObservationExpression), isinstance(expr2, BaseObservationExpression),
                     isinstance(operator, ObservationOperators))):
             raise RuntimeWarning("{} constructor called with wrong types".format(__class__))
         self.expr1 = expr1
         self.expr2 = expr2
         self.operator = operator
+        self.qualifier = qualifier
 
     def __repr__(self) -> str:
-        return "CombinedObservationExpression({expr1} {operator} {expr2})".format(expr1=self.expr1,
+        return "CombinedObservationExpression({expr1} {operator} {expr2} {qualifier})".format(expr1=self.expr1,
                                                                                   operator=self.operator,
-                                                                                  expr2=self.expr2)
+                                                                                  expr2=self.expr2,
+                                                                                  qualifier=self.qualifier)
 
 
 class Pattern:
