@@ -1,10 +1,12 @@
 import logging
+import re
 
 import dateutil.parser
 from antlr4 import CommonTokenStream, ParseTreeWalker, InputStream
 from stix2patterns_translator.grammar import STIXPatternListener, STIXPatternParser, STIXPatternLexer
 from stix2patterns_translator.pattern_objects import ObservationExpression, CombinedComparisonExpression, ObservationOperators, \
-    ComparisonExpressionOperators, ComparisonComparators, SetValue, ComparisonExpression, CombinedObservationExpression, Pattern
+    ComparisonExpressionOperators, ComparisonComparators, SetValue, ComparisonExpression, CombinedObservationExpression, Pattern, \
+    Qualifier, Qualifiers
 
 logger = logging.getLogger(__name__)
 
@@ -189,7 +191,14 @@ class STIXQueryBuilder(STIXPatternListener):
             operator = ObservationOperators.FollowedBy
             self.push(CombinedObservationExpression(expr1, expr2, operator))
 
-
+    def exitWithinQualifier(self, ctx):
+        self.push(Qualifier(Qualifiers.Within, re.search('\d+', ctx.getText()).group()))
+        
+    def exitObservationExpressionWithin(self, ctx):
+        qualifier = self.pop()
+        coe = self.pop()
+        self.push(CombinedObservationExpression(coe.expr1, coe.expr2, coe.operator, qualifier))            
+            
     def exitPattern(self, ctx):
         logger.debug("{} {} {}".format("Pattern", ctx, ctx.getText()))
         observation_expression = self.pop()
