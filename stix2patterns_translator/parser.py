@@ -209,7 +209,7 @@ class STIXQueryBuilder(STIXPatternListener):
         (start_time, stop_time) = ctx.getText().split('START')[1].split('STOP')
         value1 = start_time
         value2 = stop_time
-        self.push(ObservationExpression(coe.comparsion_expression, qualifier))
+        self.push(Qualifier(Qualifiers.StartStop, value1, value2))
     
     def exitObservationExpressionStartStop(self, ctx):
         qualifier = self.pop()
