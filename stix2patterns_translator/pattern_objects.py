@@ -46,7 +46,7 @@ class ObservationOperators(Enum):
 class Qualifiers(Enum):
     """ various types of qualifiers """
     (
-        Repeat,
+        Repeats,
         Within,
         StartStop
     ) = range(3)
@@ -131,13 +131,15 @@ class Qualifier:
 
     
 class ObservationExpression(BaseObservationExpression):
-    def __init__(self, comparison_expression: BaseComparisonExpression) -> None:
+    def __init__(self, comparison_expression: BaseComparisonExpression, qualifier: Qualifier = None) -> None:
         if not isinstance(comparison_expression, BaseComparisonExpression):
             raise RuntimeWarning("{} constructor called with wrong types".format(__class__))
         self.comparison_expression = comparison_expression
+        self.qualifier = qualifier
 
     def __repr__(self) -> str:
-        return "ObservationExpression({expr})".format(expr=self.comparison_expression)
+        return "ObservationExpression({expr} {qualifier})".format(expr=self.comparison_expression,
+                                                                 qualifier=self.qualifier)
 
 
 class CombinedObservationExpression(BaseObservationExpression):
