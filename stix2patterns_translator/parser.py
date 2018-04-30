@@ -197,7 +197,24 @@ class STIXQueryBuilder(STIXPatternListener):
     def exitObservationExpressionWithin(self, ctx):
         qualifier = self.pop()
         coe = self.pop()
-        self.push(CombinedObservationExpression(coe.expr1, coe.expr2, coe.operator, qualifier))            
+        self.push(CombinedObservationExpression(coe.expr1, coe.expr2, coe.operator, qualifier)) 
+    
+    def exitObservationExpressionRepeated(self, ctx):
+        value1 = ctx.getText().split('REPEATS')[1].split('TIMES')[0]
+        qualifier = Qualifier(Qualifiers.Repeats, value1)
+        coe = self.pop()
+        self.push(ObservationExpression(coe.comparison_expression, qualifier))
+    
+    def exitStartStopQualifier(self, ctx):
+        (start_time, stop_time) = ctx.getText().split('START')[1].split('STOP')
+        value1 = start_time
+        value2 = stop_time
+        self.push(ObservationExpression(coe.comparsion_expression, qualifier))
+    
+    def exitObservationExpressionStartStop(self, ctx):
+        qualifier = self.pop()
+        coe = self.pop()
+        self.push(ObservationExpression(coe.comparison_expression, qualifier))   
             
     def exitPattern(self, ctx):
         logger.debug("{} {} {}".format("Pattern", ctx, ctx.getText()))
