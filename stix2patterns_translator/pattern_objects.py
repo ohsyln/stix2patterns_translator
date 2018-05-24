@@ -71,6 +71,9 @@ class QualifierList:
     def add_qualifier(self, new_qualifier: Qualifier) -> None:
         self.qualifiers.append(new_qualifier)
         
+    def __iter__(self) -> iter:
+        return iter(self.qualifiers)
+        
     def __repr__(self) -> str:
         return "QualifierList({qualifiers})".format(qualifiers=self.qualifiers)
     
