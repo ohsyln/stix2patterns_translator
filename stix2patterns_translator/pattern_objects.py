@@ -107,7 +107,7 @@ class BaseComparisonExpression:
 
 class ComparisonExpression(BaseComparisonExpression):
     def __init__(self, object_path, value, comparator: ComparisonComparators, 
-                 negated: bool=False, qualifier: QualifierList=None):
+                 negated: bool=False, qualifiers: QualifierList=None):
         if not isinstance(comparator, ComparisonComparators):
             raise RuntimeWarning("{} is not a ComparisonComparator".format(comparator))
         self.object_path = object_path
