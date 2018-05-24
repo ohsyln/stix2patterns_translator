@@ -54,6 +54,27 @@ class Qualifiers(Enum):
     def __repr__(self):
         return self._name_
 
+class Qualifier:
+    def __init__(self, type: str, value1: int, value2: int = None) -> None:
+        self.type = type
+        self.value1 = value1
+        self.value2 = value2
+        
+    def __repr__(self) -> str:
+        return "Qualifier({type} {value1} {value2})".format(
+            type=self.type, value1=self.value1, value2=self.value2)
+    
+class QualifierList:
+    def __init__(self, new_qualifier: Qualifier) -> None:
+        self.qualifiers = [new_qualifier]
+       
+    def add_qualifier(self, new_qualifier: Qualifier) -> None:
+        self.qualifiers.append(new_qualifier)
+        
+    def __repr__(self) -> str:
+        return "QualifierList({qualifiers})".format(qualifiers=self.qualifiers)
+    
+    
 class STIX2Value:
     pass
 
@@ -85,79 +106,73 @@ class BaseComparisonExpression:
 
 
 class ComparisonExpression(BaseComparisonExpression):
-    def __init__(self, object_path, value, comparator: ComparisonComparators, negated: bool=False):
+    def __init__(self, object_path, value, comparator: ComparisonComparators, negated: bool=False
+                qualifier: QualifierList=None):
         if not isinstance(comparator, ComparisonComparators):
             raise RuntimeWarning("{} is not a ComparisonComparator".format(comparator))
         self.object_path = object_path
         self.value = value
         self.comparator = comparator
         self.negated = negated
+        self.qualifiers = qualifiers
 
     def __repr__(self):
-        return "ComparisonExpression({field} {comparator} {value})".format(comparator=self.comparator,
+        return "ComparisonExpression({field} {comparator} {value} {qualifiers})".format(comparator=self.comparator,
                                                                            field=self.object_path,
-                                                                           value=self.value)
+                                                                           value=self.value,
+                                                                           qualifiers=self.qualifiers)
 
 
 class CombinedComparisonExpression(BaseComparisonExpression):
     def __init__(self, expr1: BaseComparisonExpression, expr2: BaseComparisonExpression,
-                 operator: ComparisonExpressionOperators) -> None:
+                 operator: ComparisonExpressionOperators, qualifiers: QualifierList=None) -> None:
         if not all((isinstance(expr1, BaseComparisonExpression), isinstance(expr2, BaseComparisonExpression),
                    isinstance(operator, ComparisonExpressionOperators))):
             raise RuntimeWarning("{} constructor called with wrong types".format(__class__))
         self.expr1 = expr1
         self.expr2 = expr2
         self.operator = operator
+        self.qualifiers = qualifiers
 
     def __repr__(self) -> str:
-        return "CombinedComparisonExpression({expr1} {operator} {expr2})".format(expr1=self.expr1,
+        return "CombinedComparisonExpression({expr1} {operator} {expr2} {qualifiers})".format(expr1=self.expr1,
                                                                                  operator=self.operator,
-                                                                                 expr2=self.expr2)
+                                                                                 expr2=self.expr2,
+                                                                                 qualifiers=self.qualifiers)
 
 
 class BaseObservationExpression:
     pass
 
-
-class Qualifier:
-    def __init__(self, type: str, value1: int, value2: int = None) -> None:
-        self.type = type
-        self.value1 = value1
-        self.value2 = value2
-        
-    def __repr__(self) -> str:
-        return "Qualifier({type} {value1} {value2})".format(
-            type=self.type, value1=self.value1, value2=self.value2)
-
     
 class ObservationExpression(BaseObservationExpression):
-    def __init__(self, comparison_expression: BaseComparisonExpression, qualifier: Qualifier = None) -> None:
+    def __init__(self, comparison_expression: BaseComparisonExpression, qualifiers: QualifierList = None) -> None:
         if not isinstance(comparison_expression, BaseComparisonExpression):
             raise RuntimeWarning("{} constructor called with wrong types".format(__class__))
         self.comparison_expression = comparison_expression
-        self.qualifier = qualifier
+        self.qualifiers = qualifiers
 
     def __repr__(self) -> str:
-        return "ObservationExpression({expr} {qualifier})".format(expr=self.comparison_expression,
-                                                                 qualifier=self.qualifier)
+        return "ObservationExpression({expr} {qualifiers})".format(expr=self.comparison_expression,
+                                                                 qualifiers=self.qualifiers)
 
 
 class CombinedObservationExpression(BaseObservationExpression):
     def __init__(self, expr1: BaseObservationExpression, expr2: BaseObservationExpression,
-                 operator: ObservationOperators, qualifier: Qualifier = None) -> None:
+                 operator: ObservationOperators, qualifiers: QualifierList = None) -> None:
         if not all((isinstance(expr1, BaseObservationExpression), isinstance(expr2, BaseObservationExpression),
                     isinstance(operator, ObservationOperators))):
             raise RuntimeWarning("{} constructor called with wrong types".format(__class__))
         self.expr1 = expr1
         self.expr2 = expr2
         self.operator = operator
-        self.qualifier = qualifier
+        self.qualifiers = qualifiers
 
     def __repr__(self) -> str:
-        return "CombinedObservationExpression({expr1} {operator} {expr2} {qualifier})".format(expr1=self.expr1,
+        return "CombinedObservationExpression({expr1} {operator} {expr2} {qualifiers})".format(expr1=self.expr1,
                                                                                   operator=self.operator,
                                                                                   expr2=self.expr2,
-                                                                                  qualifier=self.qualifier)
+                                                                                  qualifiers=self.qualifiers)
 
 
 class Pattern:
