@@ -199,7 +199,7 @@ class STIXQueryBuilder(STIXPatternListener):
         coe = self.pop()
         if coe.qualifiers:
             qualifiers = coe.qualifiers
-            qualifiers.add_qualifiers(qualifier)
+            qualifiers.add_qualifier(qualifier)
         else:
             qualifiers = QualifierList(qualifier)
         if 'comparison_expression' in dir(coe):
@@ -213,7 +213,7 @@ class STIXQueryBuilder(STIXPatternListener):
         coe = self.pop()
         if coe.qualifiers:
             qualifiers = coe.qualifiers
-            qualifiers.add_qualifiers(qualifier)
+            qualifiers.add_qualifier(qualifier)
         else:
             qualifiers = QualifierList(qualifier)
         if 'comparison_expression' in dir(coe):
@@ -232,7 +232,7 @@ class STIXQueryBuilder(STIXPatternListener):
         coe = self.pop()
         if coe.qualifiers:
             qualifiers = coe.qualifiers
-            qualifiers.add_qualifiers(qualifier)
+            qualifiers.add_qualifier(qualifier)
         else:
             qualifiers = QualifierList(qualifier)
         if 'comparison_expression' in dir(coe):
