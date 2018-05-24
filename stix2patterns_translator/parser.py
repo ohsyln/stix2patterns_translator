@@ -6,7 +6,7 @@ from antlr4 import CommonTokenStream, ParseTreeWalker, InputStream
 from stix2patterns_translator.grammar import STIXPatternListener, STIXPatternParser, STIXPatternLexer
 from stix2patterns_translator.pattern_objects import ObservationExpression, CombinedComparisonExpression, ObservationOperators, \
     ComparisonExpressionOperators, ComparisonComparators, SetValue, ComparisonExpression, CombinedObservationExpression, Pattern, \
-    Qualifier, Qualifiers
+    Qualifier, Qualifiers, QualifierList
 
 logger = logging.getLogger(__name__)
 
@@ -197,19 +197,29 @@ class STIXQueryBuilder(STIXPatternListener):
     def exitObservationExpressionWithin(self, ctx):
         qualifier = self.pop()
         coe = self.pop()
+        if coe.qualifiers:
+            qualifiers = coe.qualifiers
+            qualifiers.add_qualifiers(qualifier)
+        else:
+            qualifiers = QualifierList(qualifier)
         if 'comparison_expression' in dir(coe):
-            self.push(ObservationExpression(coe.comparison_expression, qualifier))
+            self.push(ObservationExpression(coe.comparison_expression, qualifiers))
         elif 'expr1' in dir(coe):
-            self.push(CombinedObservationExpression(coe.expr1, coe.expr2, coe.operator, qualifier)) 
+            self.push(CombinedObservationExpression(coe.expr1, coe.expr2, coe.operator, qualifiers)) 
     
     def exitObservationExpressionRepeated(self, ctx):
         value1 = ctx.getText().split('REPEATS')[1].split('TIMES')[0]
         qualifier = Qualifier(Qualifiers.Repeats, value1)
         coe = self.pop()
+        if coe.qualifiers:
+            qualifiers = coe.qualifiers
+            qualifiers.add_qualifiers(qualifier)
+        else:
+            qualifiers = QualifierList(qualifier)
         if 'comparison_expression' in dir(coe):
-            self.push(ObservationExpression(coe.comparison_expression, qualifier))
+            self.push(ObservationExpression(coe.comparison_expression, qualifiers))
         elif 'expr1' in dir(coe):
-            self.push(CombinedObservationExpression(coe.expr1, coe.expr2, coe.operator, qualifier)) 
+            self.push(CombinedObservationExpression(coe.expr1, coe.expr2, coe.operator, qualifiers)) 
     
     def exitStartStopQualifier(self, ctx):
         (start_time, stop_time) = ctx.getText().split('START')[1].split('STOP')
@@ -220,10 +230,15 @@ class STIXQueryBuilder(STIXPatternListener):
     def exitObservationExpressionStartStop(self, ctx):
         qualifier = self.pop()
         coe = self.pop()
+        if coe.qualifiers:
+            qualifiers = coe.qualifiers
+            qualifiers.add_qualifiers(qualifier)
+        else:
+            qualifiers = QualifierList(qualifier)
         if 'comparison_expression' in dir(coe):
-            self.push(ObservationExpression(coe.comparison_expression, qualifier))
+            self.push(ObservationExpression(coe.comparison_expression, qualifiers))
         elif 'expr1' in dir(coe):
-            self.push(CombinedObservationExpression(coe.expr1, coe.expr2, coe.operator, qualifier))   
+            self.push(CombinedObservationExpression(coe.expr1, coe.expr2, coe.operator, qualifiers))   
             
     def exitPattern(self, ctx):
         logger.debug("{} {} {}".format("Pattern", ctx, ctx.getText()))
